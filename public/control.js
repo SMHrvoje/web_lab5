@@ -8,7 +8,6 @@ let body = document.getElementById("speech");
 
 document.getElementById("add_new").addEventListener('click', (event) =>{
     event.preventDefault();
-    //console.log("tu")
     if ("serviceWorker" in navigator && "SyncManager" in window) {
         //console.log("tu2")
         let naslov = title.value;
@@ -28,7 +27,9 @@ document.getElementById("add_new").addEventListener('click', (event) =>{
                 return swRegistration.sync.register("sync-snaps")
         })
             .then(() => {
-                        console.log("Queued for sync");
+                        //we passed registration
+                title.value=''
+                body.value=''
                     })
                     .catch((error) => {
                         alert(error);
@@ -62,10 +63,12 @@ if ("webkitSpeechRecognition" in window) {
             speechRecognition.interimResults = false;
             speechRecognition.lang ="en-US" //document.querySelector("#select_dialect").value;
 
-            document.getElementById("start_speech").onclick=() => {
+            document.getElementById("start_speech").onclick=(event) => {
+                event.preventDefault()
                 speechRecognition.start()
             }
-            document.getElementById("stop_speech").onclick=() => {
+            document.getElementById("stop_speech").onclick=(event) => {
+                event.preventDefault()
                 speechRecognition.stop()
             }
             // Callback Function for the onStart Event
@@ -113,6 +116,8 @@ if ("webkitSpeechRecognition" in window) {
         });
 
 } else {
+    title.classList.add("d-none")
+    body.classList.add("d-none")
     console.log("Speech Recognition Not Available");
     alert("Speech Recognition is not available in your brower but you can still type the story yourself")
 }

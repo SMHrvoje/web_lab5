@@ -53,12 +53,12 @@ async function setupPushSubscription() {
             });
             if (res.ok) {
                 alert(
-                    "Yay, subscription generated and saved:\n" +
-                    JSON.stringify(sub)
+                    "You have successfully saved the subscription"
+
                 );
             }
         } else {
-            alert("You are alreay subscribed:\n" + JSON.stringify(sub));
+            alert("You are already subscribed");
         }
     } catch (error) {
         console.log(error);
