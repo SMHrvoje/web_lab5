@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your PWA App</title>
+
+  <!-- Link to your manifest file -->
+  <link rel="manifest" href="manifest.json">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+
+</head>
+<body style="height: 100vh">
+  <!-- Your app content goes here -->
+  <div class="container h-100" id="wrapper">
+
+    <h1 class="text-center bg-primary mb-4">Tell your stories to other people</h1>
+    <h4 class="text-center mt-4">Add new stories by voice or type it yourself
+        <button id="btnEnableNotifications" class="btn btn-success">subscribe</button>
+
+    </h4>
+   <form>
+    <div class="d-flex flex-column">
+        <div class="d-flex justify-content-center gap-2">
+            <label for="story_title" >Enter your story title</label>
+          <input class="form control form-control-md" id="story_title" type="text" required></input>
+        </div>
+        <label for="speech">Your speech to text</label>
+        <textarea style="min-height: 100px" id="speech" required></textarea>
+        <div class="mt-3 d-flex flex-row gap-2 ">
+          <span class="d-table-cell align-middle">speech to text:</span>
+          <button id="start_speech" class="btn btn-primary">start</button>
+          <button id="stop_speech" class="btn btn-warning">stop</button>
+        </div>
+        <div class="d-flex justify-content-center">
+          <button id="add_new" class="btn btn-primary mb-3" > add new</button>
+        </div>
+    </div>
+   </form>
+      <div id="snaps">
+          <template id="snapTemplate">
+              <div
+                      class="
+                        d-flex
+                        flex-column
+                        align-items-center
+                        p-1
+                        shadow
+                        p-3
+                        mb-2
+                        bg-white
+                        rounded
+                    "
+              >
+                  <h3 id="template_title"></h3>
+                  <p id="template_bodys"></p>
+              </div>
+          </template>
+      </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+</body>
+<script>
+  navigator.serviceWorker
+          .register("./service-worker.js", { type: "module" })
+          .then((reg) => console.log("SW registered!", reg))
+          .catch((err) =>
+                  console.error("Error registering service worker", err)
+          );
+  fetch("/stories")
+      .then((res) => {
+          console.log("res", res);
+          if (res.ok) {
+              res.json().then((data) => {
+                  console.log("data", data);
+                  data.stories.forEach((story) => {
+                      console.log("appending", story);
+                      let snapsDiv = document.querySelector("#snaps");
+                      let template =
+                          document.querySelector("#snapTemplate");
+                      var clone = template.content.cloneNode(true);
+                      let temp_title = clone.querySelector("#template_title");
+                      temp_title.textContent = story.title
+                      let body = clone.querySelector("#template_bodys");
+                      body.textContent = story.story
+                      snapsDiv.appendChild(clone);
+                  });
+              });
+          }
+      })
+      .catch((err) => {
+          console.log(err);
+      });
+
+
+</script>
+<script type="module" src="control.js">
+</script>
+<script src="push_notifications.js">
+</script>
+</html>
