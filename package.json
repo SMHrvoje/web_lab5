@@ -4,7 +4,8 @@
   "description": "pwa for student me",
   "main": "index.js",
   "scripts": {
-    "serve": "node index.js",
+    "start": "node index.js",
+    "serve": "npm install && npm run start",
     "gen-vapid": "web-push generate-vapid-keys"
   },
   "dependencies": {

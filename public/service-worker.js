@@ -4,16 +4,7 @@ const cachedFiles = [
     '/',
     '/index.html', // glavni index
     '/manifest.json', // manifest
-    '/images/icons/icon-72x72.png', // ikone
-    '/images/icons/icon-96x96.png', // ikone
-    '/images/icons/icon-128x128.png', // ikone
-    '/images/icons/icon-144x144.png', // ikone
-    '/images/icons/icon-152x152.png', // ikone
-    '/images/icons/icon-192x192.png', // ikone
-    '/images/icons/icon-384x384.png', // ikone
-    '/images/icons/icon-512x512.png', // ikone
     "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-    // Add more files to cache as needed
 ];
 
 self.addEventListener('install', event => {
@@ -24,16 +15,6 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener("activate", (event) => {
-    console.log(
-        "*************************************************************************************"
-    );
-    console.log(
-        "******************   Activating new service worker... *******************************"
-    );
-    console.log(
-        "*************************************************************************************"
-    );
-
     const cacheWhitelist = [staticCache];
     // Ovako možemo obrisati sve ostale cacheve koji nisu naš
     event.waitUntil(
@@ -50,9 +31,11 @@ self.addEventListener("activate", (event) => {
 });
 
 
+//ako smo online gettaj i update cache da uvijek imamo latest data inače daj iz cachea
 self.addEventListener('fetch', event => {
+    //ako smo online
     if (navigator.onLine) {
-        // When online, check for updates and serve from cache if available
+
         event.respondWith(
             caches.open(staticCache).then(cache => {
                 return fetch(event.request).then(networkResponse => {
@@ -66,43 +49,40 @@ self.addEventListener('fetch', event => {
             })
         );
     } else {
-        // When offline, serve from cache
+        // ako smo offline
         event.respondWith(
             caches.match(event.request).then(cachedResponse => {
                 return cachedResponse || fetch(event.request).catch(() => {
-                    // Optionally, return a custom offline page or a fallback response here
+                   //catchanje errora ako ništa ne radi
                 });
             })
         );
     }
 });
 
+//sinkronizacija na net
 self.addEventListener('sync', function (event) {
-    console.log('Background sync!', event);
-    if (event.tag === 'sync-snaps') {
+    if (event.tag === 'sync-stories') {
         event.waitUntil(
-            syncSnaps()
+            syncStories()
         );
     }
 });
 
-let syncSnaps = async function () {
+let syncStories = async function () {
     entries().then((entries) => {
         entries.forEach((entry) => {
-            let story = entry[1]; //  Each entry is an array of [key, value].
-            console.log(story)
+            let story = entry[1]
             fetch("/saveStory", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json" // Specify the content type
+                    "Content-Type": "application/json" // da ne cita krivo
                 },
                 body: JSON.stringify(story),
             })
                 .then(function (res) {
-                    console.log(res)
                     if (res.ok) {
                         res.json().then(function (data) {
-                            console.log("Deleting from idb:", data.title);
                             del(data.title);
                         });
                     } else {
@@ -118,7 +98,6 @@ let syncSnaps = async function () {
 self.addEventListener("notificationclick", (event) => {
     let notification = event.notification;
     notification.close();
-    //console.log("notificationclick", notification);
     event.waitUntil(
         clients
             .matchAll({ type: "window", includeUncontrolled: true })
@@ -133,9 +112,7 @@ self.addEventListener("notificationclick", (event) => {
     );
 });
 
-self.addEventListener("notificationclose", function (event) {
-   // console.log("notificationclose", event);
-});
+
 
 self.addEventListener("push", function (event) {
 
@@ -149,16 +126,15 @@ self.addEventListener("push", function (event) {
         body: data.body,
         icon: "assets/img/android/android-launchericon-96-96.png",
         badge: "assets/img/android/android-launchericon-96-96.png",
-        vibrate: [200, 100, 200, 100, 200, 100, 200],
         data: {
             redirectUrl: data.redirectUrl,
         },
     };
+    //javi notif
     event.waitUntil(
         self.registration.showNotification(data.title, options)
             .catch(err => {
-                //console.error('Notification error:', err);
-                // Handle error or perform other actions
+                //ako je greska
             })
     );
 

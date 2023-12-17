@@ -1,14 +1,13 @@
 let btnNotif = document.getElementById("btnEnableNotifications");
-console.log("halo")
 if ("Notification" in window && "serviceWorker" in navigator) {
     console.log("ima notification")
     btnNotif.addEventListener("click", function () {
         Notification.requestPermission(async function (res) {
-            console.log("Request permission result:", res);
+            //console.log("Request permission result:", res);
             if (res === "granted") {
                 await setupPushSubscription();
             } else {
-                console.log("User denied push notifs:", res);
+               // console.log("User denied push notifs:", res);
             }
         });
     });
@@ -34,6 +33,7 @@ function urlBase64ToUint8Array(base64String) {
 
 async function setupPushSubscription() {
     try {
+        //provjera a je okej
         let reg = await navigator.serviceWorker.ready;
         let sub = await reg.pushManager.getSubscription();
         if (sub === null) {
@@ -46,7 +46,7 @@ async function setupPushSubscription() {
             let res = await fetch("/saveSubscription", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json",     //definiraj koji tip bude
                     Accept: "application/json",
                 },
                 body: JSON.stringify({ sub }),
@@ -61,6 +61,6 @@ async function setupPushSubscription() {
             alert("You are already subscribed");
         }
     } catch (error) {
-        console.log(error);
+       // console.log(error);
     }
 }

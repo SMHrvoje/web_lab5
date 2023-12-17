@@ -1,8 +1,4 @@
-import { get, set } from "https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm";
-//const resurs=require('https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm') ;
-//const set=resurs.set
-//const { set } = require('idb-keyval');
-//import { set } from 'idb-keyval';
+import { set } from "https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm";
 let title = document.getElementById("story_title");
 let body = document.getElementById("speech");
 
@@ -24,22 +20,21 @@ document.getElementById("add_new").addEventListener('click', (event) =>{
         navigator.serviceWorker.ready
             .then((swRegistration)=>{
                 //console.log("tu3")
-                return swRegistration.sync.register("sync-snaps")
+                return swRegistration.sync.register("sync-stories")
         })
             .then(() => {
-                        //we passed registration
+                        //resetiraj vrijednosti
                 title.value=''
                 body.value=''
                     })
                     .catch((error) => {
-                        alert(error);
-                        console.log(error);
+                        //alert(error);
+                       // console.log(error);
                     });
             }
      else {
-        // fallback
-        // pokusati poslati, pa ako ima mreze onda dobro...
-        alert("TODO - vaš preglednik ne podržava backgound sync");
+        // ne podrzava
+        alert("Preglednik ne podržava background sync");
     }
 
 })
@@ -48,20 +43,20 @@ document.getElementById("add_new").addEventListener('click', (event) =>{
 
 
 if ("webkitSpeechRecognition" in window) {
-    // Initialize webkitSpeechRecognition
+    // ako ima pokreni
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then((stream) => {
-            // Microphone access granted, stream contains audio data
+            //imamo audio
 
             let speechRecognition = new webkitSpeechRecognition();
 
-            // String for the Final Transcript
+            // dok sve cuje onda bude ovo taj string
             let final_transcript = "";
 
-            // Set the properties for the Speech Recognition object
+
             speechRecognition.continuous = true;
             speechRecognition.interimResults = false;
-            speechRecognition.lang ="en-US" //document.querySelector("#select_dialect").value;
+            speechRecognition.lang ="en-US"
 
             document.getElementById("start_speech").onclick=(event) => {
                 event.preventDefault()
@@ -71,46 +66,34 @@ if ("webkitSpeechRecognition" in window) {
                 event.preventDefault()
                 speechRecognition.stop()
             }
-            // Callback Function for the onStart Event
+
             speechRecognition.onstart = () => {
-                // Show the Status Element
-                // document.querySelector("#status").style.display = "block";
+
                 console.log("Speech started")
                 document.getElementById("start_speech").disabled = true;
                 document.getElementById("stop_speech").disabled = false;
             };
             speechRecognition.onerror = () => {
-                // Hide the Status Element
-                //document.querySelector("#status").style.display = "none";
+
             };
             speechRecognition.onend = () => {
-                // Hide the Status Element
-                //document.querySelector("#status").style.display = "none";
-                console.log("speech ended")
+
+                //console.log("speech ended")
                 document.getElementById("start_speech").disabled = false;
                 document.getElementById("stop_speech").disabled = true;
             };
 
             speechRecognition.onresult = (event) => {
-                console.log(event.results)
-                // Create the interim transcript string locally because we don't want it to persist like final transcript
-                //let interim_transcript = "";
 
-                // Loop through the results from the speech recognition object.
-
-
-                // Set the Final transcript and Interim transcript.
                 const speech_area=document.getElementById("speech");
                 const current_value=speech_area.value
                 speech_area.value=current_value+event.results[event.results.length - 1][0].transcript;
-                //document.querySelector("#interim").innerHTML = interim_transcript;
-            };
 
+            };
             speechRecognition.start()
 
         })
         .catch((error) => {
-            // Handle error
             document.getElementById("start_speech").disabled = true;
             document.getElementById("stop_speech").disabled = true;
         });
@@ -118,6 +101,6 @@ if ("webkitSpeechRecognition" in window) {
 } else {
     title.classList.add("d-none")
     body.classList.add("d-none")
-    console.log("Speech Recognition Not Available");
+    //console.log("Speech Recognition Not Available");
     alert("Speech Recognition is not available in your brower but you can still type the story yourself")
 }
